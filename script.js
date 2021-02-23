@@ -27,19 +27,20 @@ if(submitBtn) {
     window.location.assign('highscores.html');
   });
 }
-
+// i dont know why the restartbtn doesnt work
 if (restartBtn) {
-  restartBtn.addEventListener('click', funtion() {
-    window.location.assign("index.html");
-
+  restartBtn.addEventListener('click', funtion(){
+    window.location.assign('index.html');
   
   });
 };
 
 if (clearBtn) {
   clearBtn.addEventListener('click',function(){
-    startGame();
-    timer();
+    localStorage.clear();
+    scoreList.innerHTML='';
+    
+  
   });
 };
 
@@ -88,7 +89,7 @@ var answers =questions.answers;
 var questionIndex = 0;
 var timeLeft= 100;
 var timeCount;
-
+// render the score
 function renderScore() {
   if(scoreList) {
     var listScores = [];
@@ -96,19 +97,68 @@ function renderScore() {
     if (localStorage.getItem('highScore')) {
       listScores=JSON.parse(localStorage.getItem('highScores'));
     }
-    scoreList.innerHTML
+    scoreList.innerHTML= '';
 
-    listScores.forEach(element => {
-      
+    listScores.forEach(function(score){
+      var listItemEl =document.createElement('i');
+      listItemEl.textContent=JSON.stringify(score);
+      scoreList.appendChild(listItemEl);
     });
-
-
   }
 }
+// score to loca storage
+function score() {
+  var scores = [];
 
+  if (localStorage.getItem('highScore')){
+    scores=JSON.parse(localStorage.getItem('highScore'));
+  }
+  var initial =nameEl.value;
+  var remainingTime = JSON.stringify(timeLeft);
+  var highScore ={
+    name: initial,
+    score:remainingTime,
+  };
+  score.push(highScore);
+  var stringOfScores=JSON.stringify(score);
+  localStorage.setItem('highScore',stringOfScores);
+  renderScore();
+}
+function timer(){
+  timeCount=setInterval(function(){
+    timeLeft--;
+    timeEl.textContent=timeLeft;
 
+    if (timeLeft <= 0){
+      if (timeLeft<=0){
+        timeLeft=0
+      }
+      alert('Time is Up, Your score is : ' +timeLeft);
+      containerEl.classList.add('hide');
+      clearInterval(timeLeft);
+      endGame();
+    }
+  }, 1000);
+};
 
+  // answers are true or false
+  function selectedAnswer(event){
+    if (event.target.textContent!== questions[questionIndex].correct){
+      timeLeft -= 10;
+    }
 
+   
+  
+ questionIndex++;
+
+  if (questionIndex!== questions.length){
+   startGame();
+  } else {
+   alert('Game Over!, Your Score is : '+ timeLeft);
+   clearInterval(timeLeft);
+   endGame();
+ }
+}
 
 // starting game
 function startGame(){
